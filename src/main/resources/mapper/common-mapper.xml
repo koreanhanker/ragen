@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="common">
+    <sql id="paging">
+        <bind name="offset" value="(paging.offset -1) * paging.limit"/>
+        <bind name="limit" value="paging.limit"/>
+        LIMIT ${limit} OFFSET ${offset}
+    </sql>
+    <sql id="pagingColumn">
+          CEIL(COUNT(1) / #{paging.limit}) AS PAGE_CNT
+        , COUNT(1) AS LIST_CNT
+        , #{paging.limit} AS 'LIMIT'
+        , #{paging.offset} AS 'OFFSET'
+    </sql>
+    <select id="selectPaging" resultType="PagingDTO" parameterType="PagingDTO">
+        SELECT
+               CEIL(LIST_CNT/ #{limit}) AS PAGE_CNT
+             , LIST_CNT
+             , #{limit} AS 'LIMIT'
+             , #{offset} AS 'OFFSET'
+        FROM(
+            SELECT FOUND_ROWS() AS LIST_CNT
+        ) AS PAGING
+    </select>
+</mapper>

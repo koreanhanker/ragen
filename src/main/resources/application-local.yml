@@ -1,0 +1,104 @@
+spring:
+  session:
+    store-type: redis
+    login-session-timeout: 86400  # 60 * 60 * 24 sec (=24 hour)
+  server:
+    port: 8080
+  batch:
+    job:
+      enabled: false
+  datasource:
+        hikari:
+          driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+          jdbc-url: jdbc:log4jdbc:mysql://mariapark.synology.me:5394/PJDB?autoReconnect=true&useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC
+          username: ragendb
+          password: '@Regendb!0918'
+          connection-timeout: 3000
+          maximum-pool-size: 15
+          max-lifetime: 1500
+          initSQL: SELECT 1
+          testOnBorrow: true
+          test-while-idle: true
+          validationQuery: SELECT 1
+          time-between-eviction-runs-millis: 600000
+          pool-name: ragendbHikariPool
+          leak-detection-threshold: 2000
+  main:
+    allow-circular-references: true
+    allow-bean-definition-overriding: true
+
+  package:
+    name: ragen
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 1MB
+      location: C:/ragenUpload
+      max-request-size: 10MB
+      max-file-size: 10MB
+  kafka:
+    bootstrap-servers: mariapark.synology.me:9092
+    consumer:
+      group-id: runtime-kafka-registry
+      enable-auto-commit: true
+
+custom:
+    kafka:
+      listeners:
+        listener-1:
+          topic: com.faza.example.custom.listener.property
+          listener-class: MyCustomMessageListener
+server:
+  kakao:
+    url: https://italk-vir.ibizplus.co.kr:8443/rs/v1/@ndu07j6hnzk3nu2/
+    port: 8443
+    plusfriendid: '@ndu07j6hnzk3nu2'
+    apikey: bb4d2be9-0ebb-4510-a909-96c01dd7aecd
+  humax:
+    url: https://opapi.turucharger.com
+  brightpattern:
+    url: https://turuchargerbpcc.hmncc.com
+    tenant_url: turuchargerbpcc.hmncc.com
+    login: drmadmin
+    password: password1
+  redis:
+    host: mariapark.synology.me
+    port: 6379
+    channel: redisroom
+  electron-dist:
+    location: C:/smartUpload/electron-dist
+
+mail:
+  account: itfacttest@itfact.co.kr
+  debug: false
+  password: ~dltvor2009!
+  transport:
+    protocol: smtp
+  pop3s:
+    host: pop3s.hiworks.com
+    port: 995
+    timeout: 9000
+  smtp:
+    socketFactory:
+      class: javax.net.ssl.SSLSocketFactory
+      port: 465
+    port: 465
+    auth: true
+    host: smtps.hiworks.com
+    starttls:
+      enable: true
+    ssl:
+      enable: true
+  encoding:
+    charset: UTF-8
+
+aes256:
+  key: 0707405170060121784
+  cipher: AES/ECB/PKCS5Padding
+  algorithm: AES
+  encoding:
+    charset: UTF-8
+logging:
+  level:
+    com.zaxxer.hikari.HikariConfig: DEBUG
+    com.zaxxer.hikari: TRACE

@@ -1,0 +1,104 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.1.1'
+    id 'io.spring.dependency-management' version '1.1.0'
+    id 'org.asciidoctor.jvm.convert' version '3.3.2'
+    id 'war'
+}
+
+apply plugin: 'war'
+
+bootWar {
+    archiveBaseName = "ragen"
+    archiveFileName = "ragen.war"
+    archiveVersion	= "1.0.0"
+}
+
+group = 'ragen'
+
+
+java {
+    sourceCompatibility = '17'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    set('snippetsDir', file("build/generated-snippets"))
+    set('springCloudVersion', "2022.0.3")
+}
+
+dependencies {
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+    implementation group: 'org.springframework.kafka', name: 'spring-kafka', version: '3.1.1'
+    implementation group: 'org.apache.kafka', name: 'kafka-clients', version: '3.6.1'
+    implementation group: 'org.apache.kafka', name: 'kafka-streams', version: '3.6.1'
+    implementation group: 'org.apache.kafka', name: 'kafka_2.13', version: '3.6.1'
+    implementation 'org.springframework.session:spring-session-data-redis'
+    // (아래) spring에서 redis를 session storage로 사용하기 위한 의존성
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation group: 'redis.clients', name: 'jedis', version: '5.1.0'
+    testImplementation group: 'org.springframework', name: 'spring-test', version: '6.1.0'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-redis', version: '3.1.5'
+    implementation group: 'org.apache.tika', name: 'tika-core', version: '2.9.0'
+    implementation group: 'joda-time', name: 'joda-time', version: '2.12.5'
+    implementation 'com.zaxxer:HikariCP:5.0.1'
+    implementation 'javax.websocket:javax.websocket-api:1.1'
+    implementation 'org.json:json:20230618'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '3.2.0'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation 'org.projectlombok:lombok:1.18.26'
+    compileOnly 'org.projectlombok:lombok'
+    implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.33'
+    annotationProcessor 'org.projectlombok:lombok'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.springdoc:springdoc-openapi-ui:1.6.6'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket:3.1.1'
+    implementation 'org.webjars:stomp-websocket:2.3.3'
+    implementation 'javax.inject:javax.inject:1'
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.2'
+    implementation 'org.springframework:spring-core:6.0.10'
+    implementation 'org.springframework.boot:spring-boot-starter-mail:3.1.2'
+    implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
+    implementation group: 'commons-fileupload', name: 'commons-fileupload', version: '1.5'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.13.0'
+    implementation 'org.springframework.boot:spring-boot-starter-batch:3.1.1'
+    implementation 'org.springframework.boot:spring-boot-starter-quartz'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    testImplementation 'org.springframework.batch:spring-batch-test'
+    implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.10.0'
+
+    //Shedlock 관련
+    implementation 'net.javacrumbs.shedlock:shedlock-spring:5.10.0'
+    implementation 'net.javacrumbs.shedlock:shedlock-provider-redis-spring:5.10.0'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
+}
+
+springBoot {
+    mainClass = "ragen.ragenApplication" // Replace with your Spring Boot main class
+}
+
+tasks.named('test') {
+    outputs.dir snippetsDir
+    useJUnitPlatform()
+}
+
+tasks.named('asciidoctor') {
+    inputs.dir snippetsDir
+    dependsOn test
+}
