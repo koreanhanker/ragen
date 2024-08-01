@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
 import ReactApexChart from 'react-apexcharts';
-import axios from 'axios';
 
 class UpbitCoinChart extends Component {
     constructor(props) {
         super(props);
-        const colors = ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#3F51B5', '#546E7A', '#D4526E', '#8D5B4C', '#F86624'];
 
         this.state = {
             series: [{ data: [] }],
@@ -19,7 +17,7 @@ class UpbitCoinChart extends Component {
                         },
                     },
                 },
-                colors: colors,
+                colors: [],
                 plotOptions: {
                     bar: {
                         columnWidth: '45%',
@@ -36,7 +34,7 @@ class UpbitCoinChart extends Component {
                     categories: [],
                     labels: {
                         style: {
-                            colors: colors,
+                            colors: [],
                             fontSize: '12px',
                         },
                     },
@@ -57,28 +55,49 @@ class UpbitCoinChart extends Component {
     }
 
     fetchData = () => {
-        const url = 'https://api.upbit.com/v1/candles/minutes/1?market=KRW-XRP&count=1';
+        // Define query parameters
+        const market = 'KRW-XRP';
+        const count = 1;
 
-        axios.get(url, {
+        // Construct the URL with query parameters
+        const url = `https://api.upbit.com/v1/candles/days?market=${market}&count=${count}`;
+
+        const options = {
+            method: 'GET',
             headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-            .then(response => {
-                const data = response.data;
+                accept: 'application/json',
+            },
+        };
+
+        fetch(url, options)
+            .then(response => response.json())
+            .then(data => {
+                console.log('API Response:', data); // Debugging: Log API response
+
                 if (data && data.length > 0) {
-                    const prices = data.map(candle => candle.trade_price);
-                    const categories = data.map(candle => candle.market);
+                    const candle = data[0];
+                    const trade_price = candle.trade_price;
+                    const opening_price = candle.opening_price;
+                    const priceChangeColor = trade_price > opening_price ? '#FF4560' : trade_price < opening_price ? '#0000FF' : '#000000';
 
                     this.setState({
-                        series: [{ data: prices }],
+                        series: [{ data: [trade_price] }],
                         options: {
                             ...this.state.options,
+                            colors: [priceChangeColor],
                             xaxis: {
                                 ...this.state.options.xaxis,
-                                categories: categories,
+                                categories: [market],
+                                labels: {
+                                    style: {
+                                        colors: [priceChangeColor],
+                                        fontSize: '12px',
+                                    },
+                                },
                             },
                         },
+                    }, () => {
+                        console.log('State Updated:', this.state); // Debugging: Log state after update
                     });
                 }
             })
