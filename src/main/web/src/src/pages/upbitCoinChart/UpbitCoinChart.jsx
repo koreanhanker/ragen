@@ -55,56 +55,62 @@ class UpbitCoinChart extends Component {
     }
 
     fetchData = () => {
-        // Define query parameters
         const market = 'KRW-XRP';
         const count = 1;
-
-        // Construct the URL with query parameters
         const url = `https://api.upbit.com/v1/candles/days?market=${market}&count=${count}`;
 
-        const options = {
+        fetch(url, {
             method: 'GET',
             headers: {
                 accept: 'application/json',
             },
-        };
-
-        fetch(url, options)
-            .then(response => response.json())
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
-                console.log('API Response:', data); // Debugging: Log API response
-
                 if (data && data.length > 0) {
                     const candle = data[0];
                     const trade_price = candle.trade_price;
                     const opening_price = candle.opening_price;
                     const priceChangeColor = trade_price > opening_price ? '#FF4560' : trade_price < opening_price ? '#0000FF' : '#000000';
 
-                    this.setState({
-                        series: [{ data: [trade_price] }],
-                        options: {
-                            ...this.state.options,
-                            colors: [priceChangeColor],
-                            xaxis: {
-                                ...this.state.options.xaxis,
-                                categories: [market],
-                                labels: {
-                                    style: {
-                                        colors: [priceChangeColor],
-                                        fontSize: '12px',
+                    this.setState(prevState => {
+                        if (prevState.series[0].data[0] !== trade_price) {
+                            return {
+                                series: [{ data: [trade_price] }],
+                                options: {
+                                    ...prevState.options,
+                                    colors: [priceChangeColor],
+                                    xaxis: {
+                                        ...prevState.options.xaxis,
+                                        categories: [market],
+                                        labels: {
+                                            style: {
+                                                colors: [priceChangeColor],
+                                                fontSize: '12px',
+                                            },
+                                        },
                                     },
                                 },
-                            },
-                        },
-                    }, () => {
-                        console.log('State Updated:', this.state); // Debugging: Log state after update
+                            };
+                        }
+                        return null;
                     });
+                } else {
+                    console.log('No data available');
+                    // Handle case with no data if necessary
                 }
             })
             .catch(error => {
                 console.error('Error fetching data:', error);
+                // Handle errors, such as by showing a message to the user
             });
     };
+
 
     render() {
         return (
