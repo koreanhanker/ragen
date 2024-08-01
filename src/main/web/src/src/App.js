@@ -5,6 +5,7 @@ import ShowChat from "./pages/ShowChat/ShowChat";
 import Chart from "./pages/chart/Chart";
 import Close from "./pages/close/Close";
 import QueryList from "./pages/queryList/QueryList";
+import UpbitCoinChart from "./pages/upbitCoinChart/UpbitCoinChart";
 function App() {
     const navigate = useNavigate(); // useNavigate 훅을 사용하여 페이지 이동 함수를 가져옵니다.
 
@@ -25,13 +26,15 @@ function App() {
                 <button style={buttonStyle} onClick={() => handleButtonClick('/chart')}>차트(Apexcharts)</button>
                 <button style={buttonStyle} onClick={() => handleButtonClick('/close')}>닫기(Close 경고)</button>
                 <button style={buttonStyle} onClick={() => handleButtonClick('/queryList')}>쿼리(queryList)</button>
+                <button style={buttonStyle} onClick={() => handleButtonClick('/upbitCoinChart')}>업비트코인정보(upbitCoinChart)</button>
             </nav>
             <Routes>
-                <Route path="/test" element={<Test />} />
+                <Route path="/test" element={<Test/>}/>
                 <Route path="/showChat" element={<ShowChat />} />
                 <Route path="/chart" element={<Chart />} />
                 <Route path="/close" element={<Close />} />
                 <Route path="/queryList" element={<QueryList />} />
+                <Route path="/upbitCoinChart" element={<UpbitCoinChart />} />
             </Routes>
         </div>
     );
