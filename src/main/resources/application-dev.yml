@@ -32,6 +32,18 @@ spring:
       location: /home/ragen/ragenUpload
       max-request-size: 10MB
       max-file-size: 10MB
+  kafka:
+    bootstrap-servers: mariapark.synology.me:9092
+    consumer:
+      group-id: runtime-kafka-registry
+      enable-auto-commit: true
+
+custom:
+  kafka:
+    listeners:
+      listener-1:
+        topic: com.faza.example.custom.listener.property
+        listener-class: MyCustomMessageListener
 
 server:
   kakao:
@@ -39,7 +51,10 @@ server:
     port: 8443
     plusfriendid: '@ndu07j6hnzk3nu2'
     apikey: bb4d2be9-0ebb-4510-a909-96c01dd7aecd
-
+  redis:
+    host: mariapark.synology.me
+    port: 6379
+    channel: redisroom
 
 mail:
   account: itfacttest@itfact.co.kr

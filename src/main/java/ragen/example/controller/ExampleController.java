@@ -13,6 +13,7 @@ import ragen.common.response.dto.ResponseDTO;
 import ragen.common.response.enums.ResponseCode;
 import ragen.common.util.ResponseUtil;
 import ragen.example.dto.ExampleDTO;
+import ragen.example.dto.UpbitDTO;
 import ragen.example.service.ExampleService;
 
 import java.util.*;
@@ -54,5 +55,15 @@ public class ExampleController extends BaseController {
     @RequestMapping("/message")
     public ResponseDTO message() {
         return ResponseUtil.SUCCESS("SUCCESS.SEARCH","데이터입니다.");
+    }
+
+    @RequestMapping("/candles")
+    public ResponseDTO getCandles(@RequestBody(required = true) UpbitDTO upbitDTO) {
+
+        LinkedHashMap<String, Object> resMap = new LinkedHashMap<>();
+
+        resMap.put("candlesList",exampleService.getCandleDays(upbitDTO));
+
+        return ResponseUtil.SUCCESS("SUCCESS.SEARCH",resMap);
     }
 }
