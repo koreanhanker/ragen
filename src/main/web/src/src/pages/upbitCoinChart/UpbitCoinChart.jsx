@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ReactApexChart from 'react-apexcharts';
+import axios from 'axios';
 
 class UpbitCoinChart extends Component {
     constructor(props) {
@@ -42,8 +43,9 @@ class UpbitCoinChart extends Component {
             },
         };
 
-        this.intervalId = null;
+        this.fetchData = this.fetchData.bind(this);
     }
+
 
     componentDidMount() {
         this.fetchData();
@@ -54,45 +56,60 @@ class UpbitCoinChart extends Component {
         clearInterval(this.intervalId);
     }
 
-    fetchData = () => {
+    fetchData = async () => {
         const market = 'KRW-XRP';
-        const count = 1;
-        const url = `https://api.upbit.com/v1/candles/days?market=${market}&count=${count}`;
+        const count = 1; // Ensure count is a valid positive integer
 
-        fetch(url, {
-            method: 'GET',
-            headers: {
-                accept: 'application/json',
-            },
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data && data.length > 0) {
+        try {
+            const response = await axios.post('/example/candles', { market, count });
+            const responseData = response.data;
+
+            if (responseData.status === 'SUCCESS') {
+                // Parse the JSON string contained in candlesList
+                const data = JSON.parse(responseData.data.candlesList);
+
+                if (Array.isArray(data) && data.length > 0) {
                     const candle = data[0];
                     const trade_price = candle.trade_price;
                     const opening_price = candle.opening_price;
                     const priceChangeColor = trade_price > opening_price ? '#FF4560' : trade_price < opening_price ? '#0000FF' : '#000000';
+                    const newLabels  = {
+                        style: {
+                            colors: [priceChangeColor],
+                            fontSize: '12px', // Ensure fontSize is set correctly
+                        },
+                    };
 
+                    // Update state only if necessary
                     this.setState(prevState => {
-                        if (prevState.series[0].data[0] !== trade_price) {
+                        const newData = [trade_price];
+                        const newCategories = [market];
+                        const newColors = [priceChangeColor];
+
+                        // Correctly set the newLabels object
+                        const newLabels = {
+                            style: {
+                                colors: [priceChangeColor],
+                                fontSize: '12px',
+                            },
+                        };
+
+                        // Update only if there is a change
+                        if (
+                            prevState.series[0].data[0] !== trade_price ||
+                            prevState.options.xaxis.categories[0] !== market
+                        ) {
                             return {
-                                series: [{ data: [trade_price] }],
+                                series: [{ data: newData }],
                                 options: {
                                     ...prevState.options,
-                                    colors: [priceChangeColor],
+                                    colors: newColors,
                                     xaxis: {
                                         ...prevState.options.xaxis,
-                                        categories: [market],
+                                        categories: newCategories,
                                         labels: {
-                                            style: {
-                                                colors: [priceChangeColor],
-                                                fontSize: '12px',
-                                            },
+                                            ...prevState.options.xaxis.labels,
+                                            style: newLabels.style, // Ensure this is not undefined
                                         },
                                     },
                                 },
@@ -102,13 +119,13 @@ class UpbitCoinChart extends Component {
                     });
                 } else {
                     console.log('No data available');
-                    // Handle case with no data if necessary
                 }
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-                // Handle errors, such as by showing a message to the user
-            });
+            } else {
+                console.error('API response status error:', responseData.message);
+            }
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
     };
 
 

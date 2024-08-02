@@ -7,14 +7,17 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
+
 
 @EnableScheduling
 @EnableBatchProcessing
 @EnableRedisHttpSession
 @EnableKafka
+@EnableFeignClients
 @SpringBootApplication
 @ConfigurationPropertiesScan
 public class RagenApplication extends SpringBootServletInitializer {
