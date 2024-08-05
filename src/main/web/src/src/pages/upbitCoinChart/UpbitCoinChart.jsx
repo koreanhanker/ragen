@@ -72,7 +72,7 @@ class UpbitCoinChart extends Component {
                     const candle = data[0];
                     const trade_price = candle.trade_price;
                     const opening_price = candle.opening_price;
-                    const priceChangeColor = trade_price > opening_price ? '#FF4560' : trade_price < opening_price ? '#0000FF' : '#000000';
+                    const priceChangeColor = trade_price > opening_price ? '#FF0000' : trade_price < opening_price ? '#0000FF' : '#000000';
                     const newLabels  = {
                         style: {
                             colors: [priceChangeColor],
