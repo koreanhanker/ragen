@@ -27,6 +27,14 @@ class UpbitCoinChart extends Component {
                 },
                 dataLabels: {
                     enabled: true,
+                    formatter: (val, opts) => {
+                        const percentageChange = this.state.percentageChange;
+                        return `${val}(${percentageChange ? percentageChange.toFixed(2) : 0}%)`;
+                    },
+                    style: {
+                        colors: ['#FFFFFF'], // Set text color to white
+                        fontSize: '12px',
+                    },
                 },
                 legend: {
                     show: true,
@@ -35,17 +43,25 @@ class UpbitCoinChart extends Component {
                     categories: [],
                     labels: {
                         style: {
-                            colors: [],
+                            colors: [], // Set text color to white
+                            fontSize: '12px',
+                        },
+                    },
+                },
+                yaxis: {
+                    labels: {
+                        style: {
+                            colors: [], // Set text color to white
                             fontSize: '12px',
                         },
                     },
                 },
             },
+            percentageChange: null,
         };
 
         this.fetchData = this.fetchData.bind(this);
     }
-
 
     componentDidMount() {
         this.fetchData();
@@ -58,64 +74,53 @@ class UpbitCoinChart extends Component {
 
     fetchData = async () => {
         const market = 'KRW-XRP';
-        const count = 1; // Ensure count is a valid positive integer
+        const count = 1;
 
         try {
             const response = await axios.post('/example/candles', { market, count });
             const responseData = response.data;
 
             if (responseData.status === 'SUCCESS') {
-                // Parse the JSON string contained in candlesList
                 const data = JSON.parse(responseData.data.candlesList);
 
                 if (Array.isArray(data) && data.length > 0) {
                     const candle = data[0];
                     const trade_price = candle.trade_price;
                     const opening_price = candle.opening_price;
+                    const percentageChange = ((trade_price - opening_price) / opening_price) * 100;
                     const priceChangeColor = trade_price > opening_price ? '#FF0000' : trade_price < opening_price ? '#0000FF' : '#000000';
-                    const newLabels  = {
-                        style: {
-                            colors: [priceChangeColor],
-                            fontSize: '12px', // Ensure fontSize is set correctly
-                        },
-                    };
 
-                    // Update state only if necessary
                     this.setState(prevState => {
                         const newData = [trade_price];
                         const newCategories = [market];
                         const newColors = [priceChangeColor];
 
-                        // Correctly set the newLabels object
-                        const newLabels = {
-                            style: {
-                                colors: [priceChangeColor],
-                                fontSize: '12px',
-                            },
-                        };
-
-                        // Update only if there is a change
-                        if (
-                            prevState.series[0].data[0] !== trade_price ||
-                            prevState.options.xaxis.categories[0] !== market
-                        ) {
-                            return {
-                                series: [{ data: newData }],
-                                options: {
-                                    ...prevState.options,
-                                    colors: newColors,
-                                    xaxis: {
-                                        ...prevState.options.xaxis,
-                                        categories: newCategories,
-                                        labels: {
-                                            ...prevState.options.xaxis.labels,
-                                            style: newLabels.style, // Ensure this is not undefined
+                        return {
+                            series: [{ data: newData }],
+                            options: {
+                                ...prevState.options,
+                                colors: newColors,
+                                xaxis: {
+                                    ...prevState.options.xaxis,
+                                    categories: newCategories,
+                                    labels: {
+                                        ...prevState.options.xaxis.labels,
+                                        style: {
+                                            colors: [priceChangeColor],
+                                            fontSize: '12px',
                                         },
                                     },
                                 },
-                            };
-                        }
-                        return null;
+                                dataLabels: {
+                                    ...prevState.options.dataLabels,
+                                    style: {
+                                        colors: ['#FFFFFF'], // Set text color to white
+                                        fontSize: '12px',
+                                    },
+                                },
+                            },
+                            percentageChange,
+                        };
                     });
                 } else {
                     console.log('No data available');
@@ -127,7 +132,6 @@ class UpbitCoinChart extends Component {
             console.error('Error fetching data:', error);
         }
     };
-
 
     render() {
         return (
