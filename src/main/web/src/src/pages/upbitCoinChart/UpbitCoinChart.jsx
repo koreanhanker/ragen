@@ -29,7 +29,7 @@ class UpbitCoinChart extends Component {
                     enabled: true,
                     formatter: (val, opts) => {
                         const percentageChange = this.state.percentageChange;
-                        return `${val}(${percentageChange ? percentageChange.toFixed(2) : 0}%)`;
+                        return `${val} (${percentageChange ? percentageChange.toFixed(2) : 0}%)`;
                     },
                     style: {
                         colors: ['#FFFFFF'], // Set text color to white
